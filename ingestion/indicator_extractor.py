@@ -1,72 +1,47 @@
-"""
-indicator_extractor.py
-
-Pulls structured "indicators" (URLs, domains, IPs, email addresses,
-attachment hashes) out of a ParsedEmail. These indicators are what
-the LinkMirror engine, intelligence layer, and correlation engine
-all operate on downstream.
-"""
-
+"""IOC extraction from text, headers, and decoded QR destinations."""
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import List
 import re
 import urllib.parse
-
 from ingestion.eml_parser import ParsedEmail
+from ingestion.qr_detector import QRFinding
 
 URL_REGEX = re.compile(r'https?://[^\s<>"\'\)\]]+', re.IGNORECASE)
 IP_REGEX = re.compile(r'\b(?:\d{1,3}\.){3}\d{1,3}\b')
-EMAIL_REGEX = re.compile(r'[\w\.\+\-]+@[\w\-]+\.[\w\.\-]+')
-
+EMAIL_REGEX = re.compile(r'[\w.\+\-]+@[\w\-]+(?:\.[\w\-]+)+')
 
 @dataclass
 class IndicatorSet:
     urls: List[str] = field(default_factory=list)
+    qr_urls: List[str] = field(default_factory=list)
     domains: List[str] = field(default_factory=list)
     ips: List[str] = field(default_factory=list)
     email_addresses: List[str] = field(default_factory=list)
     attachment_hashes: List[str] = field(default_factory=list)
 
 
-def extract_indicators(parsed: ParsedEmail) -> IndicatorSet:
-    combined_text = f"{parsed.body_text}\n{parsed.body_html}"
-
-    urls = sorted(set(URL_REGEX.findall(combined_text)))
-    domains = sorted({_domain_from_url(u) for u in urls if _domain_from_url(u)})
-    ips = sorted(set(IP_REGEX.findall(combined_text)))
-
-    email_addresses = sorted(set(EMAIL_REGEX.findall(combined_text)))
+def extract_indicators(parsed: ParsedEmail, qr_findings: List[QRFinding] | None = None) -> IndicatorSet:
+    combined = "\n".join([parsed.body_text, parsed.body_html, *(str(v) for v in parsed.raw_headers.values())])
+    text_urls = {u.rstrip(".,;:") for u in URL_REGEX.findall(combined)}
+    qr_urls = {q.decoded for q in (qr_findings or []) if q.success and q.decoded.startswith(("http://", "https://"))}
+    all_urls = sorted(text_urls | qr_urls)
+    domains = sorted({_domain_from_url(u) for u in all_urls if _domain_from_url(u)})
+    ips = sorted(set(IP_REGEX.findall(combined)))
+    emails = set(EMAIL_REGEX.findall(combined))
     if parsed.from_address:
-        email_addresses = sorted(set(email_addresses + [parsed.from_address]))
-
-    attachment_hashes = [a.sha256 for a in parsed.attachments]
-
+        emails.add(parsed.from_address)
     return IndicatorSet(
-        urls=urls,
+        urls=all_urls,
+        qr_urls=sorted(qr_urls),
         domains=domains,
         ips=ips,
-        email_addresses=email_addresses,
-        attachment_hashes=attachment_hashes,
+        email_addresses=sorted(emails),
+        attachment_hashes=[a.sha256 for a in parsed.attachments],
     )
 
 
 def _domain_from_url(url: str) -> str:
     try:
-        return urllib.parse.urlparse(url).netloc.lower()
+        return urllib.parse.urlparse(url).hostname.lower() if urllib.parse.urlparse(url).hostname else ""
     except Exception:
         return ""
-
-
-if __name__ == "__main__":
-    import sys
-    import json
-    from ingestion.eml_parser import parse_eml_file
-
-    if len(sys.argv) != 2:
-        print("Usage: python indicator_extractor.py <path_to.eml>")
-        sys.exit(1)
-
-    parsed = parse_eml_file(sys.argv[1])
-    indicators = extract_indicators(parsed)
-    print(json.dumps(indicators.__dict__, indent=2))

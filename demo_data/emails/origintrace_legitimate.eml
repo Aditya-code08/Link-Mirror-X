@@ -1,0 +1,24 @@
+Subject: Weekly newsletter: campus events
+From: Thapar Events Desk <events@thapar.edu>
+To: employee@example-corp.test
+Reply-To: events@thapar.edu
+Return-Path: events@thapar.edu
+Date: Wed, 09 Sep 2026 09:08:54 +0000
+Message-ID: <weekly-newsl@demo.local>
+Received: from mx-internal.thapar.edu (mx-internal.thapar.edu
+ [198.51.100.202]) by mx.example-corp.test with ESMTPS id HH08; Wed, 09 Sep
+ 2026 09:08:54 +0000
+Received: from mail-relay-1.thapar.edu (mail-relay-1.thapar.edu
+ [198.51.100.201]) by mx-internal.thapar.edu with ESMTP id GG07; Wed, 09 Sep
+ 2026 09:08:54 +0000
+Authentication-Results: mx.example-corp.test; spf=pass
+ smtp.mailfrom=thapar.edu; dkim=pass header.d=thapar.edu; dmarc=pass
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+
+Hi,
+
+Here's this week's list of campus events. No action needed.
+
+Thapar Events Desk

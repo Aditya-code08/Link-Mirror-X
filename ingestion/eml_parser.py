@@ -1,21 +1,12 @@
-"""
-eml_parser.py
-
-Parses a raw .eml file into a clean, structured dictionary that the rest
-of the forensic pipeline (header forensics, indicator extraction,
-correlation) can work with.
-
-No Streamlit here. Pure Python stdlib (email package) so it can be
-tested and reused independently of the UI.
-"""
-
+"""Robust .eml parser used by the LinkMirror X forensic pipeline."""
 from __future__ import annotations
+
 import email
-from email import policy
-from email.utils import parseaddr, getaddresses
-from dataclasses import dataclass, field
-from typing import List, Optional
 import hashlib
+from dataclasses import dataclass, field
+from email import policy
+from email.utils import getaddresses, parseaddr
+from typing import List, Optional
 
 
 @dataclass
@@ -24,6 +15,21 @@ class Attachment:
     content_type: str
     size_bytes: int
     sha256: str
+    content: bytes = field(repr=False, default=b"")
+
+    @property
+    def extension(self) -> str:
+        name = self.filename.lower().rsplit("/", 1)[-1]
+        return ("." + name.rsplit(".", 1)[-1]) if "." in name else ""
+
+
+@dataclass
+class EmbeddedImage:
+    filename: str
+    content_type: str
+    size_bytes: int
+    content: bytes = field(repr=False, default=b"")
+    content_id: Optional[str] = None
 
 
 @dataclass
@@ -34,72 +40,83 @@ class ParsedEmail:
     reply_to: Optional[str]
     return_path: Optional[str]
     to_addresses: List[str]
+    cc_addresses: List[str]
     date: Optional[str]
     message_id: Optional[str]
-    received_chain: List[str]          # raw "Received:" header lines, top to bottom
+    received_chain: List[str]
     body_text: str
     body_html: str
     attachments: List[Attachment] = field(default_factory=list)
+    embedded_images: List[EmbeddedImage] = field(default_factory=list)
     raw_headers: dict = field(default_factory=dict)
+    raw_bytes_sha256: str = ""
 
 
 def parse_eml_file(path: str) -> ParsedEmail:
     with open(path, "rb") as f:
-        raw_bytes = f.read()
-    return parse_eml_bytes(raw_bytes)
+        return parse_eml_bytes(f.read())
 
 
 def parse_eml_bytes(raw_bytes: bytes) -> ParsedEmail:
     msg = email.message_from_bytes(raw_bytes, policy=policy.default)
-
-    # --- Sender / identity fields ---
     from_display_name, from_address = parseaddr(msg.get("From", ""))
-    reply_to = msg.get("Reply-To")
-    return_path = msg.get("Return-Path")
-    to_addresses = [addr for _, addr in getaddresses([msg.get("To", "")])]
-    date = msg.get("Date")
-    message_id = msg.get("Message-ID")
+    reply_to = parseaddr(msg.get("Reply-To", ""))[1] or msg.get("Reply-To")
+    return_path = parseaddr(msg.get("Return-Path", ""))[1] or msg.get("Return-Path")
 
-    # --- Received chain (order = top to bottom = most recent hop first) ---
-    received_chain = msg.get_all("Received", [])
-
-    # --- Body extraction (plain + html separately) ---
+    attachments: List[Attachment] = []
+    embedded_images: List[EmbeddedImage] = []
     body_text = ""
     body_html = ""
-    attachments: List[Attachment] = []
 
-    if msg.is_multipart():
-        for part in msg.walk():
-            content_type = part.get_content_type()
-            content_disposition = str(part.get("Content-Disposition", ""))
+    parts = msg.walk() if msg.is_multipart() else [msg]
+    for part in parts:
+        if part.is_multipart():
+            continue
+        content_type = part.get_content_type()
+        payload = part.get_payload(decode=True) or b""
+        disposition = str(part.get("Content-Disposition", "")).lower()
+        filename = part.get_filename() or ""
 
-            if "attachment" in content_disposition or part.get_filename():
-                payload = part.get_payload(decode=True) or b""
-                filename = part.get_filename() or "unnamed_attachment"
-                attachments.append(Attachment(
+        is_attachment = "attachment" in disposition or bool(filename and content_type not in {"text/plain", "text/html"})
+        if is_attachment:
+            filename = filename or "unnamed_attachment"
+            attachments.append(
+                Attachment(
                     filename=filename,
                     content_type=content_type,
                     size_bytes=len(payload),
                     sha256=hashlib.sha256(payload).hexdigest(),
-                ))
-                continue
+                    content=payload,
+                )
+            )
+            continue
 
-            if content_type == "text/plain" and not body_text:
-                payload = part.get_payload(decode=True) or b""
-                body_text = _decode_payload(payload, part)
-            elif content_type == "text/html" and not body_html:
-                payload = part.get_payload(decode=True) or b""
-                body_html = _decode_payload(payload, part)
-    else:
-        content_type = msg.get_content_type()
-        payload = msg.get_payload(decode=True) or b""
-        decoded = _decode_payload(payload, msg)
-        if content_type == "text/html":
-            body_html = decoded
+        if content_type.startswith("image/"):
+            embedded_images.append(
+                EmbeddedImage(
+                    filename=filename or f"inline_{len(embedded_images)+1}.{content_type.split('/',1)[1]}",
+                    content_type=content_type,
+                    size_bytes=len(payload),
+                    content=payload,
+                    content_id=part.get("Content-ID"),
+                )
+            )
+            continue
+
+        if content_type == "text/plain" and not body_text:
+            body_text = _decode_payload(payload, part)
+        elif content_type == "text/html" and not body_html:
+            body_html = _decode_payload(payload, part)
+
+    headers = {}
+    for key, value in msg.items():
+        if key in headers:
+            if isinstance(headers[key], list):
+                headers[key].append(value)
+            else:
+                headers[key] = [headers[key], value]
         else:
-            body_text = decoded
-
-    raw_headers = {k: v for k, v in msg.items()}
+            headers[key] = value
 
     return ParsedEmail(
         subject=msg.get("Subject", "(no subject)"),
@@ -107,14 +124,17 @@ def parse_eml_bytes(raw_bytes: bytes) -> ParsedEmail:
         from_address=from_address,
         reply_to=reply_to,
         return_path=return_path,
-        to_addresses=to_addresses,
-        date=date,
-        message_id=message_id,
-        received_chain=list(received_chain),
+        to_addresses=[a for _, a in getaddresses(msg.get_all("To", [])) if a],
+        cc_addresses=[a for _, a in getaddresses(msg.get_all("Cc", [])) if a],
+        date=msg.get("Date"),
+        message_id=msg.get("Message-ID"),
+        received_chain=msg.get_all("Received", []),
         body_text=body_text,
         body_html=body_html,
         attachments=attachments,
-        raw_headers=raw_headers,
+        embedded_images=embedded_images,
+        raw_headers=headers,
+        raw_bytes_sha256=hashlib.sha256(raw_bytes).hexdigest(),
     )
 
 
@@ -124,28 +144,3 @@ def _decode_payload(payload: bytes, part) -> str:
         return payload.decode(charset, errors="replace")
     except (LookupError, TypeError):
         return payload.decode("utf-8", errors="replace")
-
-
-if __name__ == "__main__":
-    import sys
-    import json
-
-    if len(sys.argv) != 2:
-        print("Usage: python eml_parser.py <path_to.eml>")
-        sys.exit(1)
-
-    parsed = parse_eml_file(sys.argv[1])
-    out = {
-        "subject": parsed.subject,
-        "from_display_name": parsed.from_display_name,
-        "from_address": parsed.from_address,
-        "reply_to": parsed.reply_to,
-        "return_path": parsed.return_path,
-        "to_addresses": parsed.to_addresses,
-        "date": parsed.date,
-        "message_id": parsed.message_id,
-        "received_chain_count": len(parsed.received_chain),
-        "body_text_preview": parsed.body_text[:200],
-        "attachments": [a.filename for a in parsed.attachments],
-    }
-    print(json.dumps(out, indent=2))
