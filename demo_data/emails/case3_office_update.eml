@@ -1,0 +1,22 @@
+Subject: Your password will expire soon
+From: Microsoft Office 365 <security@account-check.example>
+To: employee@example-corp.test
+Reply-To: security@account-check.example
+Return-Path: security@account-check.example
+Date: Tue, 01 Sep 2026 09:30:00 +0000
+Message-ID: <case3_office_update.eml@demo.local>
+Received: from mail.account-check.example by mx.example-corp.test with SMTP;
+ Tue, 01 Sep 2026 09:30:00 +0000
+Authentication-Results: mx.example-corp.test; spf=fail; dkim=none; dmarc=fail
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Your Office 365 password expires in 24 hours. Update it now to avoid losing a=
+ccess:
+
+http://account-check.example/office365/update?u=3D3391
+
+(hosted at 203.0.113.44)
+
+Microsoft Account Team

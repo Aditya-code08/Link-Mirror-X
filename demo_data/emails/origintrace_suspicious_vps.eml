@@ -1,0 +1,26 @@
+Subject: Invoice overdue =?utf-8?b?4oCU?= action needed
+From: Billing Dept <billing@invoice-portal.test>
+To: employee@example-corp.test
+Reply-To: billing@invoice-portal.test
+Return-Path: billing@invoice-portal.test
+Date: Wed, 09 Sep 2026 09:08:54 +0000
+Message-ID: <invoice-over@demo.local>
+Received: from relay1.invoice-portal.test (relay1.invoice-portal.test
+ [203.0.113.45]) by mx.example-corp.test with ESMTP id FF06; Wed, 09 Sep 2026
+ 09:08:54 +0000
+Received: from vps-8834.cloud-hosting-example.invalid
+ (vps-8834.cloud-hosting-example.invalid [203.0.113.44]) by
+ relay1.invoice-portal.test with SMTP id EE05; Wed, 09 Sep 2026 09:08:54 +0000
+Authentication-Results: mx.example-corp.test; spf=fail
+ smtp.mailfrom=invoice-portal.test; dkim=none; dmarc=fail
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+
+Your invoice #8834 is overdue. Pay immediately to avoid service suspension:
+
+http://invoice-portal.test/pay?ref=8834
+
+(hosted at 203.0.113.44)
+
+Billing Dept

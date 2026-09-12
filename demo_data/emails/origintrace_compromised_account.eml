@@ -1,0 +1,26 @@
+Subject: Shared folder: Q3 budget review
+From: Aditya's Colleague <realcolleague@outlook.com>
+To: employee@example-corp.test
+Reply-To: realcolleague@outlook.com
+Return-Path: realcolleague@outlook.com
+Date: Wed, 09 Sep 2026 09:08:54 +0000
+Message-ID: <shared-folde@demo.local>
+Received: from webmail-relay.outlook.com (webmail-relay.outlook.com
+ [40.97.0.1]) by mx.example-corp.test with ESMTPS id DD04; Wed, 09 Sep 2026
+ 09:08:54 +0000
+Received: from host-51-77-203-91.dyn.example-isp.test
+ (host-51-77-203-91.dyn.example-isp.test [203.0.113.91]) by
+ webmail-relay.outlook.com with HTTP id CC03; Wed, 09 Sep 2026 09:08:54 +0000
+Authentication-Results: mx.example-corp.test; spf=pass
+ smtp.mailfrom=outlook.com; dkim=pass header.d=outlook.com; dmarc=pass
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+
+Hi,
+
+Sharing the Q3 budget folder — can you review before Friday?
+
+http://sharepoint-files.test/budget?doc=771
+
+Thanks!

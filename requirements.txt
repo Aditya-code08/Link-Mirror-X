@@ -1,0 +1,11 @@
+streamlit
+numpy
+opencv-python
+Pillow
+scikit-learn
+networkx
+matplotlib
+tldextract
+python-whois
+torch
+torchvision

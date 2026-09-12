@@ -1,0 +1,24 @@
+Subject: Action required: confirm your payment details
+From: PayPal Support <no-reply@confirm-login.test>
+To: employee@example-corp.test
+Reply-To: reply@confirm-login.test
+Return-Path: reply@confirm-login.test
+Date: Tue, 01 Sep 2026 09:30:00 +0000
+Message-ID: <case2_paypal_confirm.eml@demo.local>
+Received: from mail.confirm-login.test by mx.example-corp.test with SMTP; Tue,
+ 01 Sep 2026 09:30:00 +0000
+Authentication-Results: mx.example-corp.test; spf=fail; dkim=none; dmarc=fail
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Hello,
+
+We were unable to process your last transaction. Please confirm your payment =
+details to restore full account access:
+
+http://confirm-login.test/paypal/confirm?id=3D5541
+
+(hosted at 203.0.113.44)
+
+PayPal Customer Service

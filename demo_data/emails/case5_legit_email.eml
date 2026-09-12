@@ -1,0 +1,20 @@
+Subject: Notes from today's SIH sync
+From: Aditya's Team <teammate@thapar.edu>
+To: employee@example-corp.test
+Reply-To: teammate@thapar.edu
+Return-Path: teammate@thapar.edu
+Date: Tue, 01 Sep 2026 09:30:00 +0000
+Message-ID: <case5_legit_email.eml@demo.local>
+Received: from mail.thapar.edu by mx.example-corp.test with SMTP; Tue, 01 Sep
+ 2026 09:30:00 +0000
+Authentication-Results: mx.example-corp.test; spf=pass; dkim=pass; dmarc=pass
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Hey,
+
+Sharing notes from today's sync. Nothing urgent, just documenting progress. S=
+ee you at the next meeting.
+
+Thanks!

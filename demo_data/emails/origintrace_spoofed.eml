@@ -1,0 +1,29 @@
+Subject: Immediate action: HDFC account locked
+From: HDFC Bank Security <alerts@hdfc-bank.test>
+To: employee@example-corp.test
+Reply-To: collect@random-relay.invalid
+Return-Path: collect@random-relay.invalid
+Date: Wed, 09 Sep 2026 09:08:54 +0000
+Message-ID: <immediate-ac@demo.local>
+Received: from smtp-out.random-relay.invalid (smtp-out.random-relay.invalid
+ [198.51.100.10]) by mx.example-corp.test with ESMTP id BB02; Wed, 09 Sep 2026
+ 09:08:54 +0000
+Received: from unknown-relay-9.random-relay.invalid
+ (unknown-relay-9.random-relay.invalid [198.51.100.9]) by
+ smtp-out.random-relay.invalid with SMTP id AA01; Wed, 09 Sep 2026 09:08:54
+ +0000
+Authentication-Results: mx.example-corp.test; spf=fail
+ smtp.mailfrom=hdfc-bank.test; dkim=none; dmarc=fail
+ header.from=hdfc-bank.test
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Dear customer,
+
+Your HDFC account has been locked due to suspicious activity. Click below to =
+restore access:
+
+http://hdfc-bank.test/restore?id=3D442
+
+HDFC Bank Security

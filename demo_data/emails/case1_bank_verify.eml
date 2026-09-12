@@ -1,0 +1,26 @@
+Subject: URGENT: Verify your account within 24 hours
+From: HDFC Bank Security <alerts@secure-verify.test>
+To: employee@example-corp.test
+Reply-To: collect@confirm-login.test
+Return-Path: collect@confirm-login.test
+Date: Tue, 01 Sep 2026 09:30:00 +0000
+Message-ID: <case1_bank_verify.eml@demo.local>
+Received: from mail.secure-verify.test by mx.example-corp.test with SMTP; Tue,
+ 01 Sep 2026 09:30:00 +0000
+Authentication-Results: mx.example-corp.test; spf=fail; dkim=none; dmarc=fail
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+Dear Customer,
+
+We detected unusual activity on your account. Please verify your identity imm=
+ediately to avoid suspension:
+
+http://secure-verify.test/hdfc/login?ref=3D8827
+
+(hosted at 203.0.113.44)
+
+Failure to verify within 24 hours will result in account suspension.
+
+HDFC Bank Security Team

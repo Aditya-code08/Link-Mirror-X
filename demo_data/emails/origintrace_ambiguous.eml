@@ -1,0 +1,22 @@
+Subject: Re: document access request
+From: Support Team <support@docs-share.test>
+To: employee@example-corp.test
+Reply-To: support@docs-share.test
+Return-Path: support@docs-share.test
+Date: Wed, 09 Sep 2026 09:08:54 +0000
+Message-ID: <re
+Received: from relay.docs-share.test (relay.docs-share.test [198.51.100.150])
+ by mx.example-corp.test with ESMTP id II09; Wed, 09 Sep 2026 09:08:54 +0000
+Received: from mail.docs-share.test by relay.docs-share.test
+Authentication-Results: mx.example-corp.test; spf=none; dkim=none; dmarc=none
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+
+Hello,
+
+Your requested document access has been granted:
+
+http://docs-share.test/access?token=9911
+
+Support Team

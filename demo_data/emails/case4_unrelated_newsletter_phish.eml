@@ -1,0 +1,25 @@
+Subject: Your Prime membership: unusual sign-in detected
+From: Amazon Prime <prime-deals@totally-different-host.invalid>
+To: employee@example-corp.test
+Reply-To: prime-deals@totally-different-host.invalid
+Return-Path: prime-deals@totally-different-host.invalid
+Date: Tue, 01 Sep 2026 09:30:00 +0000
+Message-ID: <case4_unrelated_newsletter_phish.eml@demo.local>
+Received: from mail.totally-different-host.invalid by mx.example-corp.test
+ with SMTP; Tue, 01 Sep 2026 09:30:00 +0000
+Authentication-Results: mx.example-corp.test; spf=fail; dkim=none; dmarc=fail
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+We noticed a sign-in from a new device. If this wasn't you, secure your accou=
+nt now:
+
+http://totally-different-host.invalid/amazon/secure?ref=3D90
+
+(hosted at 198.51.100.77)
+
+This is an unrelated, standalone incident (different infrastructure) used to =
+show the correlation engine correctly does NOT group it with Campaign A.
+
+Amazon Security

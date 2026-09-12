@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyberpunk Binary Rain</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #000;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+    .content-overlay {
+      position: relative;
+      z-index: 2;
+      color: #ffffff;
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      pointer-events: none; /* Keeps background interactive if needed */
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="binaryRain"></canvas>
+
+  <script>
+    const canvas = document.getElementById('binaryRain');
+    const ctx = canvas.getContext('2d');
+
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      initStreams();
+    });
+
+    const fontSize = 14; 
+    let columns = Math.floor(width / (fontSize * 0.75)); 
+    let streams = [];
+
+    class Stream {
+      constructor(x) {
+        this.x = x;
+        this.reset();
+      }
+
+      reset() {
+        this.y = Math.random() * -height;
+        this.speed = 2 + Math.random() * 5; 
+        this.length = Math.floor(15 + Math.random() * 30);
+        this.opacity = 0.3 + Math.random() * 0.7; 
+        this.digits = [];
+        for (let i = 0; i < this.length; i++) {
+          this.digits.push(Math.random() > 0.5 ? '1' : '0');
+        }
+      }
+
+      update() {
+        this.y += this.speed;
+        
+        // Randomly mutate digits as they fall
+        if (Math.random() < 0.1) {
+          const randomIndex = Math.floor(Math.random() * this.digits.length);
+          this.digits[randomIndex] = Math.random() > 0.5 ? '1' : '0';
+        }
+
+        if (this.y - (this.length * fontSize) > height) {
+          this.reset();
+        }
+      }
+
+      draw() {
+        ctx.font = `${fontSize}px monospace`;
+        
+        for (let i = 0; i < this.digits.length; i++) {
+          const charY = this.y - (i * fontSize);
+          if (charY < 0 || charY > height) continue;
+
+          // Gradient color shifting from Neon Green to Electric Cyan
+          const progress = i / this.length;
+          const green = Math.floor(255 * (1 - progress * 0.5));
+          const blue = Math.floor(255 * (progress * 0.8 + 0.2));
+          
+          ctx.fillStyle = `rgba(0, ${green}, ${blue}, ${this.opacity})`;
+          
+          // Glowing bloom effect on the leading head digit
+          if (i === 0) {
+            ctx.shadowColor = '#00f3ff';
+            ctx.shadowBlur = 12;
+            ctx.fillStyle = '#ffffff'; // Bright leading head
+          } else {
+            ctx.shadowBlur = 0;
+          }
+
+          ctx.fillText(this.digits[i], this.x, charY);
+        }
+      }
+    }
+
+    function initStreams() {
+      columns = Math.floor(width / (fontSize * 0.75));
+      streams = [];
+      for (let i = 0; i < columns; i++) {
+        streams.push(new Stream(i * (fontSize * 0.75)));
+      }
+    }
+
+    function animate() {
+      // Dark trail persistence effect for smooth motion blur
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+      ctx.fillRect(0, 0, width, height);
+
+      streams.forEach(stream => {
+        stream.update();
+        stream.draw();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    initStreams();
+    animate();
+  </script>
+</body>
+</html>
